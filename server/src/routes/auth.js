@@ -28,6 +28,9 @@ authRouter.post("/signup", async (req, res) => {
 
     // add the token to cookie, set the expiry time for cookie and send the response back to the user
     res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
     res.json({
@@ -69,6 +72,9 @@ authRouter.post("/login", async (req, res) => {
 
       // add the token to cookie, set the expiry time for cookie and send the response back to the user
       res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       });
       res.json({
@@ -103,6 +109,9 @@ authRouter.post("/logout", async (req, res) => {
     return res.status(400).send("You are not logged in.");
   }
   res.cookie("token", null, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
     expires: new Date(Date.now()),
   });
   res.send("Logged out successfully");
