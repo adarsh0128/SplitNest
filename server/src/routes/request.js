@@ -2,8 +2,18 @@ const express = require("express");
 const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const { User } = require("../models/user.js");
+const nodemailer = require("nodemailer");
 
 const requestRouter = express.Router();
+
+// Configure the email transporter
+const transporter = nodemailer.createTransport({
+  service: "gmail", // e.g., 'gmail'
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 requestRouter.post(
   "/request/send/:status/:toUserId",
@@ -48,6 +58,22 @@ requestRouter.post(
       });
 
       const data = await connectionRequest.save();
+      // Send email notification
+      const mailOptions = {
+        from: "adarshnita26@example.com",
+        to: toUser.emailId, // Use 'emailId' field
+        subject: "New Connection Request",
+        text: `You have a new connection request from ${req.user.firstName} ${req.user.lastName}.`,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res
+            .status(500)
+            .json({ message: "Failed to send email", error: error.message });
+        }
+        console.log("Email sent: " + info.response);
+      });
       res.json({
         message: "Connection request sent successfully.",
         data,
